@@ -11,7 +11,7 @@
 #include <asm/io.h>
 #include <asm/uaccess.h>
 
-#define INFRARED_THERMOPILE_MAJOR_NUMBER     508
+#define INFRARED_THERMOPILE_MAJOR_NUMBER     502
 #define INFRARED_THERMOPILE_NAME             "infrared_thermopile"
 
 #define GPIO_BASE_ADDR              0x3F200000

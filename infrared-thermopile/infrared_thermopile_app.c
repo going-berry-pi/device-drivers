@@ -7,8 +7,8 @@
 #include <sys/ioctl.h>
 #include <sys/sysmacros.h>
 
-#define INFRARED_THERMOPILE_MAJOR_NUMBER     508
-#define INFRARED_THERMOPILE_MINOR_NUMBER     108
+#define INFRARED_THERMOPILE_MAJOR_NUMBER     502
+#define INFRARED_THERMOPILE_MINOR_NUMBER     102
 #define INFRARED_THERMOPILE_PATH_NAME        "/dev/infrared_thermopile"
 
 #define MAX_LEN 32
