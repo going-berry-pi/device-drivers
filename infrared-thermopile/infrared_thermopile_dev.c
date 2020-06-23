@@ -25,6 +25,7 @@
 #define DLEN                        0x8
 #define A                           0xc
 #define FIFO                        0x10
+#define DIV			                    0x14
 
 #define BSC_C_I2CEN                 0x00008000
 #define BSC_C_ST 		                0x00000080
@@ -35,6 +36,8 @@
 #define BSC_S_ERR 		              0x00000100
 #define BSC_S_RXD 		              0x00000020
 #define BSC_S_DONE 		              0x00000002
+
+#define CLOCK_DIVIDER               148
 
 static void __iomem *gpio_base;
 volatile unsigned int *gpfsel0;
@@ -49,6 +52,7 @@ volatile unsigned int *status;
 volatile unsigned int *dlen;
 volatile unsigned int *a_register;
 volatile unsigned int *fifo;
+volatile unsigned int *div;
 
 int infrared_thermopile_open(struct inode *inode, struct file *filp){
     printk(KERN_ALERT "Infrared Thermopile device open function called\n");
@@ -66,9 +70,20 @@ int infrared_thermopile_open(struct inode *inode, struct file *filp){
     dlen = (volatile unsigned int *)(bsc1_base + DLEN);
     a_register = (volatile unsigned int *)(bsc1_base + A);
     fifo = (volatile unsigned int *)(bsc1_base + FIFO);
+    div = (volatile unsigned int *)(bsc1_base + DIV);
 
+    *div = 148;
     *a_register = 0x40;
 
+    /* Clear FIFO */
+    *control |= BSC_C_CLEAR_1;
+    /* Clear Status */
+    *status = BSC_S_CLKT | BSC_S_ERR | BSC_S_DONE;
+    /* Set Data Length */
+    *dlen = 1;
+    *fifo = 0x03;
+    *control = BSC_C_I2CEN | BSC_C_ST;
+    
     return 0;
 }
 
