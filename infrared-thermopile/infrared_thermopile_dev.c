@@ -25,17 +25,17 @@
 #define DLEN                        0x8
 #define A                           0xc
 #define FIFO                        0x10
-#define DIV			                    0x14
+#define DIV                         0x14
 
 #define BSC_C_I2CEN                 0x00008000
-#define BSC_C_ST 		                0x00000080
-#define BSC_C_CLEAR_1 		          0x00000020
-#define BSC_C_READ 		              0x00000001
+#define BSC_C_ST                    0x00000080
+#define BSC_C_CLEAR_1               0x00000020
+#define BSC_C_READ                  0x00000001
 
-#define BSC_S_CLKT 		              0x00000200
-#define BSC_S_ERR 		              0x00000100
-#define BSC_S_RXD 		              0x00000020
-#define BSC_S_DONE 		              0x00000002
+#define BSC_S_CLKT                  0x00000200
+#define BSC_S_ERR                   0x00000100
+#define BSC_S_RXD                   0x00000020
+#define BSC_S_DONE                  0x00000002
 
 #define CLOCK_DIVIDER               148
 
