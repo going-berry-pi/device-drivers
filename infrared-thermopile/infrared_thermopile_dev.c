@@ -82,8 +82,9 @@ int infrared_thermopile_open(struct inode *inode, struct file *filp){
     /* Set Data Length */
     *dlen = 1;
     *fifo = 0x03;
+    /* Enable device and start transfer */
     *control = BSC_C_I2CEN | BSC_C_ST;
-    
+
     return 0;
 }
 
