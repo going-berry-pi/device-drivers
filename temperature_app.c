@@ -35,7 +35,7 @@
 #define MAX_NAMELEN         32
 #define BUFSIZE             512
 
-#define MAX_STUDENT_COUNT	60
+#define MAX_STUDENT_COUNT   60
 
 typedef struct {
     int student_number;
@@ -180,7 +180,7 @@ int main(int argc, char* argv[]) {
 
     struct hostent *host_ent;
 
-    if (argc == 2){
+    if (argc == 2) {
         nport = PORT;
     } else if (argc == 3) {
         addrserv =argv[1];
@@ -192,13 +192,13 @@ int main(int argc, char* argv[]) {
     }
 
     cli_sock = socket(PF_INET, SOCK_STREAM, 0);    // open socket
-    if (cli_sock == -1){
+    if (cli_sock == -1) {
         perror("socket() error!\n");
         exit(0);
     }
 
     // addrserv: abc.der.com  type   and 192.168.0.xx type
-    if (strncmp(addrserv, "192.168.", 8) != 0){
+    if (strncmp(addrserv, "192.168.", 8) != 0) {
         if ((host_ent = gethostbyname(addrserv)) == NULL) {
             herror("gethostbyname() error\n");
         }
@@ -215,14 +215,12 @@ int main(int argc, char* argv[]) {
         perror("connect() error\n");
         exit(0);
     }
-    // //통신
 
-    //통신
-    if((pid = fork()) == -1){
+    if((pid = fork()) == -1) {
         perror("fork() error\n");
         exit(0);
     } else if(pid ==0) {    //child process  : write data to server from stdin
-        while(1){
+        while(1) {
             fgets(buf, sizeof(buf), stdin);    //from stdin by user
             nbytes = strlen(buf);
             write(cli_sock, buf, MAXLINE);    //send user input string to socket -> client
@@ -231,11 +229,8 @@ int main(int argc, char* argv[]) {
                 exit(0);        //exit when "exit"
             }
         }
-    } else if (pid > 0){    //parent process : read data from server and output to stdout
-        // while(1){  
-        //통신받아옴
+    } else if (pid > 0) {    //parent process : read data from server and output to stdout
         while(1) {  
-            //서버에서 받아오는것
             memset(buf, 0, sizeof(buf));
             if((nbytes = read(cli_sock, buf, MAXLINE)) < 0) {    //read string from client through socket
                 perror("read() error\n");
@@ -243,9 +238,7 @@ int main(int argc, char* argv[]) {
             }
             if(buf[1] == 0) 
                 continue;
-            //device driver Algorithm.
 
-            //받아온 정보를 저장 
             for(int i=0;i<19;i++) {
                 student[co][i] = buf[i];
             }
@@ -254,8 +247,8 @@ int main(int argc, char* argv[]) {
                 int max_temper =0;
                 float real_max_temper =0;
                 read(ultrasonic_fd, &distance, sizeof(unsigned long));
-                //20cm in -> print distance
-                if(distance < 20){ 
+                
+                if(distance < 20) { 
                     led_status = 1;
                     write(led_fd, &led_status, 4);
                     //초음파리드
@@ -264,7 +257,7 @@ int main(int argc, char* argv[]) {
                     int temp = (temp_buf[0] * 256 + (temp_buf[1] & 0xFC)) / 4;
                     float cTemp = temp * 0.03125;	//섭씨 ->측정
                     float fTemp = cTemp * 1.8 + 32; //화씨
-                    if(max_temper < cTemp){
+                    if(max_temper < cTemp) {
                         max_temper = (int)cTemp;
                         real_max_temper = cTemp;
                         student_data.temp = real_max_temper;
@@ -274,9 +267,8 @@ int main(int argc, char* argv[]) {
                     flag = 1;
                     count++; //5second on
                     sleep(1);	
-                    if(count == 6 && flag == 1){  //성공
-                        for(int i =0 ; i <2 ; i++){
-                
+                    if(count == 6 && flag == 1) {  //성공
+                        for(int i =0 ; i <2 ; i++) {
                             printf("--Checking Complete--\n");
                             led_status = 0;
                             write(led_fd, &led_status, 4);
@@ -284,24 +276,25 @@ int main(int argc, char* argv[]) {
                             led_status = 1;
                             write(led_fd, &led_status, 4);
                             sleep(1);
-                            }
-                            printf("Student's temperature is %.2f C.\n",real_max_temper);
+                        }
+                        
+                        printf("Student's temperature is %.2f C.\n",real_max_temper);
 
-                        for(int i=19;i<23;i++){
-                        student[co][i] = max_temper>>(8*(22-i));
-                            }
+                        for(int i=19;i<23;i++) {
+                            student[co][i] = max_temper>>(8*(22-i));
+                        }
+                        
                         printf("%d\n",student[co][0]);
                         printf("%X\n",student[co][1]);
                         printf("%X\n",student[co][2]);
                         printf("%X\n",student[co][3]);
                         printf("%X\n",student[co][4]);
-                        for(int j=5;j<15;j++){
+                        
+                        for(int j=5;j<15;j++) {
                             printf("%c",student[co][j]);
-                            if(student[co][j] == NULL){
+                            if(student[co][j] == NULL) {
                                 student_data.name_len = j - 5;
                                 strncpy(student_data.name, &student[co][5], student_data.name_len + 1);
-                                // printf("이름 길이 : %d\n", student_data.name_len);
-                                // printf("이름 : %s\n", student_data.name);
                                 break;
                             }
                         }
@@ -317,16 +310,16 @@ int main(int argc, char* argv[]) {
                         flag = 0;
                         isNewStudent = 1;
                         break;
+                    }
                 }
-        }
-                else if(count !=6 && flag == 1){
+                else if(count !=6 && flag == 1) {
                     flag = 0;
                     printf("--Student's Run , Please Rechecking--\n");
                     led_status=0;
                     write(led_fd, &led_status, 4);
                     break;
                 }
-                else{
+                else {
                     count =1;
                     led_status=0;
                     write(led_fd, &led_status, 4);
@@ -341,8 +334,6 @@ int main(int argc, char* argv[]) {
     printf("Thread End %d\n", entrance_t_result);
 
     close(cli_sock);
-    //통신받는곳 예상
-
     close(inf_fd);
     close(led_fd);
     close(ultrasonic_fd);
