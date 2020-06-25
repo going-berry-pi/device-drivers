@@ -12,10 +12,8 @@
 #include <sys/socket.h>
 
 #define MOTOR_MAJOR_NUMBER   507
-#define MOTOR_MINOR_NUMBER 	 107
+#define MOTOR_MINOR_NUMBER   107
 #define MOTOR_PATH_NAME      "/dev/motor_dev"
-
-#define INTERVAL             50000
 
 #define BUFSIZE              512
 
