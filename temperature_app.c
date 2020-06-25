@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -14,9 +15,9 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 
-
-#define MAXLINE    511
-#define PORT       65021      // 사용자 정의 통신을 위한 임의 포트
+#define MAXLINE                     511
+#define PORT                        65021
+#define ENTRANCE_PORT               9003
 
 #define LED_MAJOR_NUMBER            501
 #define LED_MINOR_NUMBER            101
@@ -30,16 +31,86 @@
 #define INFRARED_THERMOPILE_MINOR_NUMBER     102
 #define INFRARED_THERMOPILE_PATH_NAME        "/dev/infrared_thermopile"
 
-#define MAX_LEN 32
+#define MAX_LEN             32
+#define MAX_NAMELEN         32
+#define BUFSIZE             512
 
 #define MAX_STUDENT_COUNT	60
+
+typedef struct {
+    int student_number;
+    float temp;
+    int name_len;
+    char name[MAX_NAMELEN];
+} STUDENT_DATA;
+
+STUDENT_DATA student_data;
+int isNewStudent = 0;
+
+void *entrance_client() {
+	int sock;
+    struct sockaddr_in    server_addr;
+    char buf[BUFSIZE + 1];
+    int retval, msglen, offset;
+
+    sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sock == -1) {
+        perror("socket() error!\n");
+        exit(0);
+    }
+
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = inet_addr("192.168.1.5");
+    server_addr.sin_port = htons(ENTRANCE_PORT);
+
+    if (connect(sock, (struct sockaddr *)&server_addr, sizeof(struct sockaddr)) == -1) {
+        printf("[관리자 서버와 연결이 실패하였습니다.]\n");
+        close(sock);
+        return (void *)0;
+        perror("connect() error\n");
+    }
+
+    printf("[관리자 서버와 연결되었습니다.]\n");
+    
+    while(1) {
+        if(isNewStudent) {
+            memset(buf, 0, sizeof(buf));
+            
+            offset = 0;
+
+            memcpy(buf + offset, &(student_data.student_number), sizeof(int));
+            offset += sizeof(int);
+
+            memcpy(buf + offset, &(student_data.temp), sizeof(float));
+            offset += sizeof(float);
+
+            memcpy(buf + offset, &(student_data.name_len), sizeof(int));
+            offset += sizeof(float);
+            
+            memcpy(buf + offset, &(student_data.name), sizeof(char) * student_data.name_len);
+            
+            retval = send(sock, buf, sizeof(int) * 2 + sizeof(float) + sizeof(char) * student_data.name_len, 0);
+            if(retval < 0) {
+                perror("send() error\n");
+                break;
+            }
+
+            printf("[입구 클라이언트] 학생 정보를 서버로 보냈습니다.\n");
+            printf("학번 : %d, 온도 : %f, 이름 길이 : %d, 이름 : %s\n", student_data.student_number, student_data.temp, student_data.name_len, student_data.name);
+            
+            isNewStudent = 0;
+		}
+        sleep(5);
+    }
+    close(sock);
+    return (void *)0;
+}
 
 int main(int argc, char* argv[])
 {
 	//정보 담을 배열
-	char student[MAX_STUDENT_COUNT][25] ={0,};
-
-	//device driver 
+	char student[MAX_STUDENT_COUNT][29] ={0,};
 
 	dev_t infrared_thermopile;
     int inf_fd;
@@ -52,6 +123,9 @@ int main(int argc, char* argv[])
 	dev_t ultrasonic;
 	int ultrasonic_fd;
 	unsigned long distance = 0;
+
+    pthread_t entrance_t;
+    int entrance_t_result;
 
 	infrared_thermopile = makedev(INFRARED_THERMOPILE_MAJOR_NUMBER, INFRARED_THERMOPILE_MINOR_NUMBER);
     mknod(INFRARED_THERMOPILE_PATH_NAME, S_IFCHR|0666, infrared_thermopile);
@@ -81,12 +155,17 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
+    if (pthread_create(&entrance_t, NULL, entrance_client, NULL) < 0) {
+        perror("pthread create error\n");
+        exit(0);
+    }
+
 	int flag =0;
 	int count=1;
 	int i = 0;
 	
 	int co =0;
-	//.................................................통신
+
 	//..................................................통신
 	int cli_sock;
 
@@ -141,8 +220,6 @@ int main(int argc, char* argv[])
         exit(0);
     }
 	// //통신
-
-	// int index =0;
 	
 	//통신
 	if((pid = fork()) == -1){
@@ -164,17 +241,21 @@ int main(int argc, char* argv[])
 			while(1) {  
 				
 				//서버에서 받아오는것
-            if((nbytes = read(cli_sock, buf, MAXLINE)) < 0){    //read string from client through socket
-                perror("read() error\n");
-                exit(0);
-            }
-			if(buf[1]==0){continue;}
-			//device driver Algorithm.
-            printf("%s\n", buf);    //output string from client to stdout
+				memset(buf, 0, sizeof(buf));
+				if((nbytes = read(cli_sock, buf, MAXLINE)) < 0){    //read string from client through socket
+					perror("read() error\n");
+					exit(0);
+				}
+				if(buf[1]==0){continue;}
+				//device driver Algorithm.
 
-			for(int i=0;i<15;i++){
-			student[co][i] = buf[i];
-			}
+				//받아온 정보를 저장 
+				for(int i=0;i<19;i++)
+				{
+					student[co][i] = buf[i];
+				}
+
+
 			while(1){ //디바이스드라이버 관련 알고리즘 작동부분 
 				int max_temper =0;
 				float real_max_temper =0;
@@ -193,6 +274,7 @@ int main(int argc, char* argv[])
 					if(max_temper < cTemp){
 						max_temper = (int)cTemp;
 						real_max_temper = cTemp;
+						student_data.temp = real_max_temper;
 					}
 					// printf("Student Distance : %ld cm\n", (unsigned long)distance);
 					printf("--Now Checking...%d /5 sec--\n",count);
@@ -212,8 +294,8 @@ int main(int argc, char* argv[])
 							}
 							printf("Student's temperature is %.2f C.\n",real_max_temper);
 
-						for(int i=15;i<19;i++){
-						student[co][i] = max_temper>>(8*(18-i));
+						for(int i=19;i<23;i++){
+						student[co][i] = max_temper>>(8*(22-i));
 							}
 						printf("%d\n",student[co][0]);
 						printf("%X\n",student[co][1]);
@@ -223,38 +305,48 @@ int main(int argc, char* argv[])
 						for(int j=5;j<15;j++){
 							printf("%c",student[co][j]);
 							if(student[co][j] == NULL){
+								student_data.name_len = j - 5;
+								strncpy(student_data.name, &student[co][5], student_data.name_len + 1);
+								// printf("이름 길이 : %d\n", student_data.name_len);
+								// printf("이름 : %s\n", student_data.name);
 								break;
 							}
-						}	
+						}
 						printf("\n");
-						float real_temper = (student[co][15]<<24) + (student[co][16]<<16) +(student[co][17]<<8) +(student[co][18]);
+						printf("student number: %d .",(student[co][15]<<24) + (student[co][16]<<16) + (student[co][17]<<8)+(student[co][18]));
+						student_data.student_number = (student[co][15]<<24) + (student[co][16]<<16) + (student[co][17]<<8)+(student[co][18]);
+						printf("\n");
+						float real_temper = (student[co][19]<<24) + (student[co][20]<<16) +(student[co][21]<<8) +(student[co][22]);
 						printf("%f\n",real_temper);
 						co++;
-				buf[1] =0;
-			  count =1;
-			  flag =0;
-			  break;
-			}
+						buf[1] =0;
+						count =1;
+						flag = 0;
+                        isNewStudent = 1;
+						break;
+			    }
 		}
-		else if(count !=6 && flag == 1){
-				flag = 0;
-				printf("--Student's Run , Please Rechecking--\n");
-				led_status=0;
-				write(led_fd, &led_status, 4);
-				break;
-    }
-		else{
-			count =1;
-			led_status=0;
-			write(led_fd, &led_status, 4);
-    }
-	
-			}
+		        else if(count !=6 && flag == 1){
+				    flag = 0;
+				    printf("--Student's Run , Please Rechecking--\n");
+				    led_status=0;
+				    write(led_fd, &led_status, 4);
+				    break;
+                }
+		        else{
+			        count =1;
+			        led_status=0;
+			        write(led_fd, &led_status, 4);
+                }
+	        }
 	if(strncmp(buf, "exit",4) == 0)
                 exit(0);
-  } 
-    }
+    } 
+}
 	//통신2차
+
+    pthread_join(entrance_t, (void **)&entrance_t_result);
+    printf("Thread End %d\n", entrance_t_result);
 
 	close(cli_sock);
    //통신받는곳 예상

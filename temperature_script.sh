@@ -26,4 +26,4 @@ gcc -o infrared_thermopile_app infrared_thermopile_app.c
 
 cd ..
 rm temperature_app
-gcc -o temperature_app temperature_app.c
+gcc -o temperature_app temperature_app.c -lpthread
