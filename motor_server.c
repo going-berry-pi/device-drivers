@@ -16,7 +16,7 @@
 #define MOTOR_PATH_NAME      "/dev/motor_dev"
 
 #define BUFSIZE              512
-
+#define MOTOR_PORT           9002
 typedef struct {
     int command;
     int time;
@@ -57,7 +57,7 @@ int main (int argc, char ** argv ) {
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    server_addr.sin_port = htons(9003);
+    server_addr.sin_port = htons(MOTOR_PORT);
 
     if (bind(listen_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
         perror("bind() error\n");
