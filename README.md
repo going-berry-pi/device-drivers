@@ -24,10 +24,10 @@ git remote add upstream https://github.com/going-berry-pi/device-drivers.git
 git fetch upstream
 ```
 
-2. 변경사항이 있으면 로컬 master 에 merge 하기
+2. 변경사항이 있으면 로컬 master 에 변경사항 pull 하기
 
 ```
-git merge upstream/master
+git pull upstream master
 ```
 
 3. 변경사항 업데이트 후 / 또는 변경사항이 없으면 브랜치 만들어서 작업하기
@@ -58,7 +58,7 @@ git push -u origin 브랜치-이름
 
 ```
 git checkout master
-git merge upstream/master
+git pull upstream master
 git push origin master
 ```
 
