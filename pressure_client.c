@@ -52,8 +52,10 @@ void *seat_client() {
     server_addr.sin_port = htons(9001);
 
     if (connect(sock, (struct sockaddr *)&server_addr, sizeof(struct sockaddr)) == -1) {
+        printf("[관리자 서버와 연결이 실패하였습니다.]\n");
+        close(sock);
+        return (void *)0;
         perror("connect() error\n");
-        exit(0);
     }
 
     while(1) {
