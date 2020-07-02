@@ -1,8 +1,30 @@
-# Device Drivers
+# Offline Class Management System
 
-각자 작성한 디바이스 드라이버 코드를 모아놓는 공간입니다.
+> 아주대학교 대면 수업 관리 시스템
 
-## PR 규칙
+![system structure](/images/system-structure.png)
+
+## Device Drivers
+
+| 사용 디바이스 / 모델명                                                                                                                                                                  | 관련 시나리오         | 기능                                | 작동 방식                   |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- | ----------------------------------- | --------------------------- |
+| RFID / [RC522](http://mechasolution.com/shop/goods/goods_view.php?goodsno=866&category=)                                                                                                | 교실 입실 (학생 인증) | 학생증을 활용한 간편한 학생 인증    | 카드 터치 / SPI             |
+| 4x3 키패드 / [COM-08653](http://mechasolution.com/shop/goods/goods_view.php?goodsno=2323&category=)                                                                                     | 교실 입실 (학생 인증) | 학생증이 없는 경우에 대한 학생 인증 | 버튼 클릭 / GPIO            |
+| 적외선 온도 / [TMP007](http://vctec.co.kr/front/php/product.php?product_no=5154&NaPm=ct%3Dkc4tb77d%7Cci%3Dcheckout%7Ctr%3Dppc%7Ctrx%3D%7Chk%3D4b518817bcd276091c7a8abe5ee8965178db27ce) | 교실 입실 (온도 측정) | 학생의 체온 측정                    | 일정 거리 접근 / I2C        |
+| 초음파 센서 / [HC-SR04](http://mechasolution.com/shop/goods/goods_view.php?goodsno=539636&category=)                                                                                    | 교실 입실 (온도 측정) | 체온 측정 시 적정 거리 유지         | 일정 거리 접근 / GPIO       |
+| LED                                                                                                                                                                                     | 교실 입실 (온도 측정) | 온도 측정 완료에 대한 피드백        | On, Off 조절 / GPIO         |
+| 압력 / [FSR18](http://mechasolution.com/shop/goods/goods_view.php?goodsno=1300&category=)                                                                                               | 좌석 확인             | 착석 여부 확인                      | 압력에 따른 가변 저항 / SPI |
+| ADC / [MCP3008](http://mechasolution.com/shop/goods/goods_view.php?goodsno=8067&category=)                                                                                              | 좌석 확인             | 아날로그 가변 저항 값 처리          | SPI                         |
+| 모터 / [SERVO SG90](http://mechasolution.com/shop/goods/goods_view.php?goodsno=587413&category=)                                                                                        | 원격 창문 제어        | 환기용 창문 여닫기                  | Soft PWM                    |
+
+## Contributors
+
+- [경주현](https://github.com/kkjhh0207)
+- [박병준](https://github.com/nike0717)
+- [박효성](https://github.com/HyoSungP)
+- [추연호](https://github.com/younho9)
+
+## How to Contribute
 
 ### 초기 세팅
 
@@ -13,7 +35,7 @@
 3. 팀 repo 를 remote로 추가
 
 ```
-git remote add upstream https://github.com/going-berry-pi/device-drivers.git
+git remote add upstream https://github.com/going-berry-pi/f2f-class-management-system.git
 ```
 
 ### 작업 방법
@@ -54,7 +76,7 @@ git push -u origin 브랜치-이름
 
 6. 다른 사람이 코드 리뷰하고 `Squash and Merge` 하기
 
-7. merge 완료되면 팀 repo,  로컬 master 브랜치, Forked repo 동기화
+7. merge 완료되면 팀 repo, 로컬 master 브랜치, Forked repo 동기화
 
 ```
 git checkout master
@@ -68,7 +90,7 @@ git push origin master
 
 ```
 # 예시
-device-drivers
+f2f-class-management-system
   ├── README.md
   ├── led
   │  ├── led_dev.c
@@ -85,4 +107,3 @@ device-drivers
   ├── ...
   ...
 ```
-
