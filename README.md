@@ -13,16 +13,30 @@
 
 ## Device Drivers
 
-| 사용 디바이스 / 모델명                                                                                                                                                                  | 관련 시나리오         | 기능                                | 작동 방식                   |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- | ----------------------------------- | --------------------------- |
-| RFID / [RC522](http://mechasolution.com/shop/goods/goods_view.php?goodsno=866&category=)                                                                                                | 교실 입실 (학생 인증) | 학생증을 활용한 간편한 학생 인증    | 카드 터치 / SPI             |
-| 4x3 키패드 / [COM-08653](http://mechasolution.com/shop/goods/goods_view.php?goodsno=2323&category=)                                                                                     | 교실 입실 (학생 인증) | 학생증이 없는 경우에 대한 학생 인증 | 버튼 클릭 / GPIO            |
-| 적외선 온도 / [TMP007](http://vctec.co.kr/front/php/product.php?product_no=5154&NaPm=ct%3Dkc4tb77d%7Cci%3Dcheckout%7Ctr%3Dppc%7Ctrx%3D%7Chk%3D4b518817bcd276091c7a8abe5ee8965178db27ce) | 교실 입실 (온도 측정) | 학생의 체온 측정                    | 일정 거리 접근 / I2C        |
-| 초음파 센서 / [HC-SR04](http://mechasolution.com/shop/goods/goods_view.php?goodsno=539636&category=)                                                                                    | 교실 입실 (온도 측정) | 체온 측정 시 적정 거리 유지         | 일정 거리 접근 / GPIO       |
-| LED                                                                                                                                                                                     | 교실 입실 (온도 측정) | 온도 측정 완료에 대한 피드백        | On, Off 조절 / GPIO         |
-| 압력 / [FSR18](http://mechasolution.com/shop/goods/goods_view.php?goodsno=1300&category=)                                                                                               | 좌석 확인             | 착석 여부 확인                      | 압력에 따른 가변 저항 / SPI |
-| ADC / [MCP3008](http://mechasolution.com/shop/goods/goods_view.php?goodsno=8067&category=)                                                                                              | 좌석 확인             | 아날로그 가변 저항 값 처리          | SPI                         |
-| 모터 / [SERVO SG90](http://mechasolution.com/shop/goods/goods_view.php?goodsno=587413&category=)                                                                                        | 원격 창문 제어        | 환기용 창문 여닫기                  | Soft PWM                    |
+| 디바이스 드라이버           | 사용 디바이스 / 모델명                                       | 관련 시나리오         | 기능                                | 작동 방식                   |
+| --------------------------- | ------------------------------------------------------------ | --------------------- | ----------------------------------- | --------------------------- |
+| `rfid_dev.c`                | RFID / [RC522](http://mechasolution.com/shop/goods/goods_view.php?goodsno=866&category=) | 교실 입실 (학생 인증) | 학생증을 활용한 간편한 학생 인증    | 카드 터치 / SPI             |
+| `keypad_dev.c`              | 4x3 키패드 / [COM-08653](http://mechasolution.com/shop/goods/goods_view.php?goodsno=2323&category=) | 교실 입실 (학생 인증) | 학생증이 없는 경우에 대한 학생 인증 | 버튼 클릭 / GPIO            |
+| `infrared_thermopile_dev.c` | 적외선 온도 / [TMP007](http://vctec.co.kr/front/php/product.php?product_no=5154&NaPm=ct%3Dkc4tb77d%7Cci%3Dcheckout%7Ctr%3Dppc%7Ctrx%3D%7Chk%3D4b518817bcd276091c7a8abe5ee8965178db27ce) | 교실 입실 (온도 측정) | 학생의 체온 측정                    | 일정 거리 접근 / I2C        |
+| `ultrasonic_dev.c`          | 초음파 센서 / [HC-SR04](http://mechasolution.com/shop/goods/goods_view.php?goodsno=539636&category=) | 교실 입실 (온도 측정) | 체온 측정 시 적정 거리 유지         | 일정 거리 접근 / GPIO       |
+| `led_dev.c`                 | LED                                                          | 교실 입실 (온도 측정) | 온도 측정 완료에 대한 피드백        | On, Off 조절 / GPIO         |
+| `pressure_dev.c`            | 압력 센서 / [FSR18](http://mechasolution.com/shop/goods/goods_view.php?goodsno=1300&category=) | 좌석 확인             | 착석 여부 확인                      | 압력에 따른 가변 저항 / SPI |
+| 없음                        | ADC / [MCP3008](http://mechasolution.com/shop/goods/goods_view.php?goodsno=8067&category=) | 좌석 확인             | 아날로그 가변 저항 값 처리          | SPI                         |
+| `motor_dev.c`               | 모터 / [SERVO SG90](http://mechasolution.com/shop/goods/goods_view.php?goodsno=587413&category=) | 원격 창문 제어        | 환기용 창문 여닫기                  | Soft PWM                    |
+
+> 각 폴더의 쉘 스크립트로 디바이스 드라이버를 설치하는 것과  각 디바이스의 앱 코드로 테스트 가능
+
+## Application
+
+| 응용 프로그램       | 설명                | 사용 디바이스                      | 사용 소켓                      |
+| ------------------- | ------------------- | ---------------------------------- | ------------------------------ |
+| `admin_app.c`       | 관리자 서버 응용    | 없음                               | 클라이언트 소켓 1, 서버 소켓 3 |
+| `motor_server.c`    | 모터 서버 응용      | 모터                               | 서버 소켓                      |
+| `pressure_client.c` | 좌석 확인 파이 응용 | 압력 센서, ADC                     | 클라이언트 소켓 1              |
+| `rfid_server.c`     | 학생 인증 파이 응용 | RFID                               | 클라이언트 소켓 1, 서버 소켓 1 |
+| `temperature_app.c` | 온도 측정 파이 응용 | 적외선 온도 센서, 초음파 센서, LED | 클라이언트 소켓 1, 서버 소켓 1 |
+
+> 각 응용의 쉘 스크립트로 필요한 디바이스 드라이버 설치와 응용 프로그램 컴파일 가능
 
 ## How to Contribute
 
