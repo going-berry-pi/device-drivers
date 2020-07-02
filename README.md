@@ -4,6 +4,13 @@
 
 ![system structure](/images/system-structure.png)
 
+## Contributors
+
+- [경주현](https://github.com/kkjhh0207)
+- [박병준](https://github.com/nike0717)
+- [박효성](https://github.com/HyoSungP)
+- [추연호](https://github.com/younho9)
+
 ## Device Drivers
 
 | 사용 디바이스 / 모델명                                                                                                                                                                  | 관련 시나리오         | 기능                                | 작동 방식                   |
@@ -16,13 +23,6 @@
 | 압력 / [FSR18](http://mechasolution.com/shop/goods/goods_view.php?goodsno=1300&category=)                                                                                               | 좌석 확인             | 착석 여부 확인                      | 압력에 따른 가변 저항 / SPI |
 | ADC / [MCP3008](http://mechasolution.com/shop/goods/goods_view.php?goodsno=8067&category=)                                                                                              | 좌석 확인             | 아날로그 가변 저항 값 처리          | SPI                         |
 | 모터 / [SERVO SG90](http://mechasolution.com/shop/goods/goods_view.php?goodsno=587413&category=)                                                                                        | 원격 창문 제어        | 환기용 창문 여닫기                  | Soft PWM                    |
-
-## Contributors
-
-- [경주현](https://github.com/kkjhh0207)
-- [박병준](https://github.com/nike0717)
-- [박효성](https://github.com/HyoSungP)
-- [추연호](https://github.com/younho9)
 
 ## How to Contribute
 
