@@ -11,6 +11,10 @@
 - [박효성](https://github.com/HyoSungP)
 - [추연호](https://github.com/younho9)
 
+## Proposal
+
+[아주대학교 대면 수업 관리 시스템 제안서](/proposal.md)
+
 ## Device Drivers
 
 | 디바이스 드라이버           | 사용 디바이스 / 모델명                                       | 관련 시나리오         | 기능                                | 작동 방식                   |
@@ -49,7 +53,7 @@
 3. 팀 repo 를 remote로 추가
 
 ```
-git remote add upstream https://github.com/going-berry-pi/f2f-class-management-system.git
+git remote add upstream https://github.com/going-berry-pi/offline-class-management-system.git
 ```
 
 ### 작업 방법
@@ -104,7 +108,7 @@ git push origin master
 
 ```
 # 예시
-f2f-class-management-system
+offline-class-management-system
   ├── README.md
   ├── led
   │  ├── led_dev.c
